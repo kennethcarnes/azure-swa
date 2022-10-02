@@ -1,7 +1,8 @@
+#https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-github-actions?tabs=userlevel%2CCLI
 #https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/steps-checkout?view=azure-pipelines
 #https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux&WT.mc_id=javascript-70241-aapowell
 #https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux&WT.mc_id=javascript-70241-aapowell
-name: Deploy
+name: Deployment
 on: [push]
 
 permissions:
