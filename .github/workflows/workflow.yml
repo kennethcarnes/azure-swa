@@ -1,10 +1,7 @@
 #https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux&WT.mc_id=javascript-70241-aapowell
-name: Run Azure Login with OpenID Connect
 on: [push]
 
-permissions:
-      id-token: write
-      contents: read
+name: Run Azure Login with OpenID Connect
 
 jobs:
 
