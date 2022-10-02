@@ -1,7 +1,7 @@
 #https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/steps-checkout?view=azure-pipelines
 #https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux&WT.mc_id=javascript-70241-aapowell
 #https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux&WT.mc_id=javascript-70241-aapowell
-name: Deployment
+name: Deploy
 on: [push]
 
 permissions:
@@ -13,11 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # Checkout code
+      # Checkout code from Github
+    - name: Checkout code from Github
     - uses: actions/checkout@main
 
-      # Run Azure Login with OpenID Connect
-    - name: Az CLI login
+      # Authenticate to Azure CLI with OpenID Connect
+    - name: Authenticate to Azure CLI with OpenID Connect
       uses: azure/login@v1
       with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -25,14 +26,14 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   
       #Ensure resource group exists 
-    - name: Check RG
+    - name: Ensure resource group exists
       uses: azure/CLI@v1
       with:
         inlineScript: |
                 az group create -g ${{ secrets.RESOURCE_GROUP }} -l ${{ secrets.RESOURCE_GROUP_LOCATION }}
 
-      # Deploy Bicep file
-    - name: Deploy Bicep
+      # Deploy resources with Bicep
+    - name: Deploy resources with Bicep
       uses: azure/arm-deploy@v1
       with:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP }}
