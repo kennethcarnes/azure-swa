@@ -15,7 +15,7 @@ jobs:
       # Checkout code
     - uses: actions/checkout@main
 
-      # Run Azure Login with OpenID Connect
+      # Run Azure Login with OpenID Connect 
     - name: Azure Login
       uses: azure/login@v1
       with:
