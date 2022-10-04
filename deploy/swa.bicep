@@ -12,7 +12,7 @@ resource swa_resource 'Microsoft.Web/staticSites@2021-01-15' = {
     properties: {
         branch: 'main'
         repositoryToken: 'repositoryToken'
-        repositoryUrl: 'repositoryUrl'
+        repositoryUrl: 'https://github.com/kennethcarnes/swa'
         buildProperties: {
             appLocation: '/' 
             apiLocation: './api'
