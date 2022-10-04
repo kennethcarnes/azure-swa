@@ -8,4 +8,4 @@ https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs
 https://microsoft.github.io/AzureTipsAndTricks/blog/tip282.html
 https://medium.com/codex/publish-azure-static-web-apps-using-a-bicep-template-ca315a825b74
 https://dev.to/azure/how-you-can-deploy-your-resume-in-2-min-using-azure-static-web-apps-2nmd
-https://learn.microsoft.com/en-us/azure/app-service/quickstart-html
+https://learn.microsoft.com/en-us/azure/app-service/quickstart-html 
