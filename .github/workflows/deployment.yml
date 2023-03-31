@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@main
 
       # Login to Azure with OpenID Connect 
-    - name: Azure Login
+    - name: 'Azure CLI Login'
       uses: azure/login@v1
       with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}

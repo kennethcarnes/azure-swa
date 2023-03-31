@@ -2,9 +2,13 @@
 
 Short guide to outline the steps for deploying website with Github Actions, Bicep, and Azure Static Web Apps.
 
-## Step 1: Learn about Azure Static Web Apps
-- https://learn.microsoft.com/en-us/azure/app-service/quickstart-html
+## Step 1: [Create an Azure Active Directory application and service principle](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Cwindows#create-an-azure-active-directory-application-and-service-principal)
 
+## Step 2: [Add federaterd credentials](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Cwindows#add-federated-credentials-preview)
+
+## Step 3: [Create GitHub secrets](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Cwindows#create-github-secrets)
+
+## Step 4: [Set up Azure Login with OpenID Connect authentication](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Cwindows#set-up-azure-login-with-openid-connect-authentication)
 ## Step 2: Set up Azure Static Web Apps using Bicep
 - https://www.aaron-powell.com/posts/2022-06-29-deploy-swa-with-bicep/
 - https://medium.com/codex/publish-azure-static-web-apps-using-a-bicep-template-ca315a825b74
@@ -24,3 +28,7 @@ Short guide to outline the steps for deploying website with Github Actions, Bice
 
 ## Step 5: Set up custom domain for Azure Static Web Apps
 10. https://www.janssen.io/blog/azure/static-web-apps-with-azure-devops/part-1/#setup-the-custom-domain
+
+# Docs
+Learn about Azure Static Web Apps
+- https://learn.microsoft.com/en-us/azure/app-service/quickstart-html
