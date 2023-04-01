@@ -33,7 +33,7 @@ The Scrolling Background:
 	- Fades to a solid color either at the top of bottom (which is used to fill
 	  the empty space above or below your image).
 
-	Now, there are two ways to use it: with CSS, or with Sass:
+	Now, there are two ways to use it: with CSS, or with Sass: 
 
 	CSS:
 
