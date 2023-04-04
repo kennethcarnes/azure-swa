@@ -1,0 +1,15 @@
+az deployment group create \
+  --resource-group <resource-group-name> \
+  --name <deployment-name> \
+  --template-file <path-to-bicep-file> \
+  --parameters \
+    name=<name-value> \
+    location=<location-value> \
+    sku=<sku-value> \
+    skucode=<skucode-value> \
+    repositoryUrl=<repository-url-value> \
+    branch=<branch-value> \
+    repositoryToken=<repository-token-value> \
+    appLocation=<app-location-value> \
+    apiLocation=<api-location-value> \
+    appArtifactLocation=<app-artifact-location-value>
