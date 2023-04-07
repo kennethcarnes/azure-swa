@@ -1,3 +1,4 @@
+#Workflow that deploys single-page web app
 name: Azure Static Web Apps CI/CD
 
 on:

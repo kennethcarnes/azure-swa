@@ -1,3 +1,4 @@
+# Script to deploy main.bicep template file
 az deployment group create \
   --resource-group <resource-group-name> \
   --name <deployment-name> \
