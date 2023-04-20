@@ -8,13 +8,13 @@ This project uses GitHub Actions, Bicep, and Azure CLI to deploy a static web ap
   azure-static-web-apps-jolly-island-0b433f610.yml
                 |
                 v
-        deploy.azcli
+           deploy.azcli
                 |
                 v
             main.bicep
                 |
                 v
-        parameters.json
+          parameters.json
 ```
 
 | File name                                        | Description               |
