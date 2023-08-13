@@ -29,7 +29,7 @@ In landing-page.component.html, you'd have your photo, name, tagline, and the bu
 Install Node.js:
 choco install nodejs
 
-Verify the Installation:
+Verify the Installation:  
 node -v
 npm -v
 
