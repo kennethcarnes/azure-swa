@@ -22,12 +22,12 @@ src/
 |-- styles.scss
 |-- index.html
 |-- main.ts
-```
+```  
 
 In landing-page.component.html, you'd have your photo, name, tagline, and the buttons for LinkedIn, GitHub, resume download, blog, and contact form.
 
 Install Node.js:
-choco install nodejs
+choco install nodejs   
 
 Verify the Installation:     
 node -v
