@@ -1,75 +1,25 @@
-name: Deploy to Azure
+name: Run Azure Login with OpenID Connect and PowerShell
+on: [push]
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
-
-jobs:
-  deploy-infrastructure:
-    runs-on: ubuntu-latest
-    permissions:
+permissions:
       id-token: write
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Login to Azure CLI
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-    - name: Build and Deploy Static Web App with Bicep
-      run: |
-        az bicep build -f ./frontend.bicep
-        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./frontend.json
-
-    - name: Build and Deploy Backend with Bicep
-      run: |
-        az bicep build -f ./backend.bicep
-        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./backend.json
-
-    - name: Build and Deploy Monitoring and Security with Bicep
-      run: |
-        az bicep build -f ./monitoring-security.bicep
-        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./monitoring-security.json
-
-  build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    runs-on: ubuntu-latest
-    name: Build and Deploy Job
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Build And Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_ISLAND_0B433F610 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
-          app_location: "app"   # This is the important line. Ensure this points to the correct directory in your repository.
-          api_location: ""      # If you have an API location, specify here, otherwise leave as is.
-          output_location: "/"  # Adjust if your build output is located in a different directory.
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_ISLAND_0B433F610 }}
-          action: "close"
-          app_location: "app"   # Explicitly set app_location, even if it seems redundant
+      contents: read
       
+jobs: 
+  Windows-latest:
+      runs-on: windows-latest
+      steps:
+        - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
+          uses: azure/login@v1
+          with:
+            client-id: ${{ secrets.AZURE_CLIENT_ID }}
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+            enable-AzPSSession: true
+
+        - name: 'Get resource group with PowerShell action'
+          uses: azure/powershell@v1
+          with:
+             inlineScript: |
+               Get-AzResourceGroup
+             azPSVersion: "latest"
