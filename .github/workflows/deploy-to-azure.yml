@@ -12,6 +12,8 @@ on:
 jobs:
   deploy-infrastructure:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
     - name: Checkout repository
@@ -26,18 +28,18 @@ jobs:
 
     - name: Build and Deploy Static Web App with Bicep
       run: |
-        az bicep build -f ./frontend/staticwebapp.bicep
-        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./frontend/staticwebapp.json
+        az bicep build -f ./frontend.bicep
+        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./frontend.json
 
-    - name: Build and Deploy Azure SQL with Bicep
+    - name: Build and Deploy Backend with Bicep
       run: |
-        az bicep build -f ./backend/sql.bicep
-        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./backend/sql.json
+        az bicep build -f ./backend.bicep
+        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./backend.json
 
-    - name: Build and Deploy Azure Functions with Bicep
+    - name: Build and Deploy Monitoring and Security with Bicep
       run: |
-        az bicep build -f ./backend/functions.bicep
-        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./backend/functions.json
+        az bicep build -f ./monitoring-security.bicep
+        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file ./monitoring-security.json
 
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
@@ -54,9 +56,9 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_ISLAND_0B433F610 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
-          app_location: "/frontend"
-          api_location: "/backend"
-          output_location: "/"
+          app_location: "app"   # This is the important line. Ensure this points to the correct directory in your repository.
+          api_location: ""      # If you have an API location, specify here, otherwise leave as is.
+          output_location: "/"  # Adjust if your build output is located in a different directory.
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -69,3 +71,5 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_JOLLY_ISLAND_0B433F610 }}
           action: "close"
+          app_location: "app"   # Explicitly set app_location, even if it seems redundant
+      
