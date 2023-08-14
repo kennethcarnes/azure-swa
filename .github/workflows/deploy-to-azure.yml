@@ -28,7 +28,7 @@ jobs:
     - name: Build and Deploy Main Bicep
       env:
         AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-        SWA_NAME: 'kc-swa-site-${{ github.sha }}'
+        SWA_NAME: 'swa-kc-prod-001'
         SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
         REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
         TENANT_ID: ${{ secrets.TENANT_ID }}
