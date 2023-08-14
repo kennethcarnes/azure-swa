@@ -67,7 +67,7 @@ resource endpoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' = {
     isCompressionEnabled: true
     origins: [
       {
-        name: 'origin1'
+        name: 'origin-kc-prod-001'
         properties: {
           hostName: swaResource.properties.defaultHostname
         }
