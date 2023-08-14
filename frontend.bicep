@@ -64,7 +64,7 @@ resource endpoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' = {
     originHostHeader: swaResource.properties.defaultHostname
     isHttpAllowed: true
     isHttpsAllowed: true
-    isCompressionEnabled: true
+    isCompressionEnabled: false
     origins: [
       {
         name: 'origin-kc-prod-001'

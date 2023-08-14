@@ -11,7 +11,7 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   name: 'sql-kc-prod-001'
   location: location
   properties: {
-    administratorLogin: 'admin'
+    administratorLogin: 'sql-kc-prod-001-admin'
     administratorLoginPassword: sqlAdminPassword
   }
 }

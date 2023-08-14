@@ -7,7 +7,7 @@ param skucode string
 param repositoryUrl string
 param branch string
 param repositoryToken string
-param appLocation string = 'app' // default to app unless you have a different directory
+param appLocation string = '/'
 param apiLocation string = 'api' // default to api unless you have a different directory
 param appArtifactLocation string = 'dist' // default to dist or where your build outputs to
 param tenantId string
