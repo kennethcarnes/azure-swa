@@ -40,6 +40,7 @@ resource sqlRoleAssignment 'Microsoft.Sql/servers/databases/roleAssignments@2021
     roleId: resourceId('Microsoft.Sql/roleDefinitions', 'ID_FOR_DATAREADER_AND_DATAWRITER')
   }
 }
+*/
 
 // Azure Function App resource
 resource functionApp 'Microsoft.Web/sites@2018-11-01' = {
@@ -52,5 +53,3 @@ resource functionApp 'Microsoft.Web/sites@2018-11-01' = {
     // Configuration details for the function app can be added here.
   }
 }
-
-*/
