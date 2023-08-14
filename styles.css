@@ -1,0 +1,84 @@
+h1 {
+    letter-spacing: 2px; /* Space out letters for title */
+    margin-bottom: 10px; /* A bit of margin at the bottom */
+}
+
+p {
+    font-style: italic; /* Make the subtitle italic */
+    margin-bottom: 20px; /* More margin for visual separation */
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h1, p {
+    opacity: 0; /* Initially hidden */
+    animation: slideUp 0.5s forwards; /* Animate upwards */
+    animation-delay: 1s; /* Starts after the image fade-in is almost done */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #181818;
+    color: #EAEAEA;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.centered {
+    text-align: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.centered img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    animation: fadeIn 2s ease-in;
+}
+
+.centered a, .centered button {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px; /* Standard padding for buttons */
+    background-color: #333;
+    color: #EAEAEA;
+    text-decoration: none;
+    font-size: 16px; /* Explicitly set font size */
+    border: none;
+    border-radius: 5px;
+    box-sizing: border-box; /* Ensure padding doesn't affect overall size */
+    transition: background-color 0.3s;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); /* Add a subtle shadow for depth */
+    transform: scale(1); /* set initial scale */
+    transition: background-color 0.3s, transform 0.3s; /* transition for background-color and transform */
+}
+
+.centered a:hover, .centered button:hover {
+    background-color: #555; /* Darker background on hover */
+    transform: scale(1.05); /* Slightly enlarge the buttons on hover */
+}
+
+.centered button {
+    cursor: pointer; /* Ensure it has a pointer cursor */
+}

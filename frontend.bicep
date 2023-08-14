@@ -9,9 +9,9 @@ param repositoryUrl string
 param branch string
 @secure()
 param repositoryToken string
-param appLocation string
-param apiLocation string
-param appArtifactLocation string
+param appLocation string = '/'
+param apiLocation string = 'api'
+param appArtifactLocation string = ''
 
 // Parameters needed for the CDN
 @description('Name of the CDN Profile')
