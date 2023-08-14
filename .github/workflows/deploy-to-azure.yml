@@ -37,7 +37,7 @@ jobs:
         BRANCH: main
         REPOSITORY_URL: https://github.com/kennethcarnes/azure-swa
         SKU: Free
-        SKUCODE: S1
+        SKUCODE: Free
         LOCATION: eastus2
       run: |
         az bicep build -f ./main.bicep
