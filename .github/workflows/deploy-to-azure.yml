@@ -36,9 +36,9 @@ jobs:
         PROFILE_NAME: ${{ secrets.PROFILE_NAME }}
         BRANCH: main
         REPOSITORY_URL: https://github.com/kennethcarnes/azure-swa
-        SKU: Standard  # Assuming a Standard SKU, modify as required
-        SKUCODE: S1   # Assuming a standard SKU code, modify as required
-        LOCATION: eastus2  # Or whatever Azure location you want
+        SKU: Free
+        SKUCODE: S1
+        LOCATION: eastus2
       run: |
         az bicep build -f ./main.bicep
         az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
