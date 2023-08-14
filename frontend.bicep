@@ -1,5 +1,7 @@
-// Static Web App
-param name string
+// frontend.bicep
+
+// Parameters needed for the Static Web App
+param SWAName string
 param location string
 param sku string
 param skucode string
@@ -11,8 +13,24 @@ param appLocation string
 param apiLocation string
 param appArtifactLocation string
 
-resource name_resource 'Microsoft.Web/staticSites@2021-01-01' = {
-  name: name
+// Parameters needed for the CDN
+@description('Name of the CDN Profile')
+param profileName string
+
+@description('Name of the CDN Endpoint, must be unique')
+param endpointName string
+
+@description('CDN SKU names')
+@allowed([
+  'Standard_Akamai'
+  'Standard_Microsoft'
+  'Standard_Verizon'
+  'Premium_Verizon'
+])
+param CDNSku string = 'Standard_Microsoft'
+
+resource swaResource 'Microsoft.Web/staticSites@2021-01-01' = {
+  name: SWAName
   location: location
   sku: {
     tier: sku
@@ -30,21 +48,30 @@ resource name_resource 'Microsoft.Web/staticSites@2021-01-01' = {
   }
 }
 
-// Azure CDN - Simplified for brevity. More configurations might be needed.
-resource cdnProfile 'Microsoft.Cdn/profiles@2019-04-15' = {
-  name: 'myCdnProfile'
+resource profile 'Microsoft.Cdn/profiles@2021-06-01' = {
+  name: profileName
   location: location
   sku: {
-    name: 'Standard_Microsoft'
+    name: CDNSku
   }
 }
 
-resource cdnEndpoint 'Microsoft.Cdn/profiles/endpoints@2019-04-15' = {
-  name: '${cdnProfile.name}/myCdnEndpoint'
+resource endpoint 'Microsoft.Cdn/profiles/endpoints@2021-06-01' = {
+  parent: profile
+  name: endpointName
   location: location
   properties: {
-    originHostName: name_resource.properties.defaultHostname
+    originHostHeader: swaResource.properties.defaultHostname
+    isHttpAllowed: true
     isHttpsAllowed: true
-    originHostHeader: name_resource.properties.defaultHostname
+    isCompressionEnabled: true
+    origins: [
+      {
+        name: 'origin1'
+        properties: {
+          hostName: swaResource.properties.defaultHostname
+        }
+      }
+    ]
   }
 }

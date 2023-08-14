@@ -25,23 +25,18 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Build and Deploy Static Web App with Bicep
+    - name: Build and Deploy Main Bicep
       env:
         AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        SWA_NAME: 'kc-swa-site-${{ github.sha }}'
+        SQL_ADMIN_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+        REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
+        TENANT_ID: ${{ secrets.TENANT_ID }}
+        ENDPOINT_NAME: ${{ secrets.ENDPOINT_NAME }}
+        PROFILE_NAME: ${{ secrets.PROFILE_NAME }}
       run: |
-        az bicep build -f ./frontend.bicep
-        az deployment group create --resource-group $AZURE_RESOURCE_GROUP --template-file ./frontend.json
+        az bicep build -f ./main.bicep
+        az deployment group create --resource-group $AZURE_RESOURCE_GROUP --template-file ./main.json --parameters sqlAdminPassword=$SQL_ADMIN_PASSWORD repositoryToken=$REPOSITORY_TOKEN tenantId=$TENANT_ID endpointName=$ENDPOINT_NAME profileName=$PROFILE_NAME SWAName=$SWA_NAME
 
-    - name: Build and Deploy Backend with Bicep
-      env:
-        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-      run: |
-        az bicep build -f ./backend.bicep
-        az deployment group create --resource-group $AZURE_RESOURCE_GROUP --template-file ./backend.json
-
-    - name: Build and Deploy Monitoring and Security with Bicep
-      env:
-        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-      run: |
-        az bicep build -f ./monitoring-security.bicep
-        az deployment group create --resource-group $AZURE_RESOURCE_GROUP --template-file ./monitoring-security.json
+    - name: Logout of Azure CLI
+      run: az logout

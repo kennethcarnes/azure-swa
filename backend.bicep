@@ -1,25 +1,33 @@
-param location string
+// backend.bicep
 
-// Azure SQL Database
+// Parameters needed
+param location string
+@secure()
+param sqlAdminPassword string
+
+
+// SQL Server resource
 resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
-  name: 'mySqlServer'
+  name: 'kc-sqlserver'
   location: location
   properties: {
     administratorLogin: 'admin'
-    administratorLoginPassword: 'password' // Ideally, should be stored in Azure Key Vault
+    administratorLoginPassword: sqlAdminPassword
   }
 }
 
+// SQL Database resource associated with the SQL Server
 resource sqlDb 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
-  name: '${sqlServer.name}/myDb'
+  parent: sqlServer
+  name: 'kc-personaldb'
   location: location
 }
 
-// Azure Function for contact form processing
+// Azure Function App resource
 resource functionApp 'Microsoft.Web/sites@2018-11-01' = {
-  name: 'myFunctionApp'
+  name: 'kc-funcapp'
   location: location
   properties: {
-    // Configuration details
+    // Configuration details for the function app can be added here.
   }
 }
