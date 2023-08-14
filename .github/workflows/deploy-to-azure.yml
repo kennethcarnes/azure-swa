@@ -34,9 +34,19 @@ jobs:
         TENANT_ID: ${{ secrets.TENANT_ID }}
         ENDPOINT_NAME: ${{ secrets.ENDPOINT_NAME }}
         PROFILE_NAME: ${{ secrets.PROFILE_NAME }}
+        BRANCH: main
+        REPOSITORY_URL: https://github.com/kennethcarnes/azure-swa
+        SKU: Standard  # Assuming a Standard SKU, modify as required
+        SKUCODE: S1   # Assuming a standard SKU code, modify as required
       run: |
         az bicep build -f ./main.bicep
-        az deployment group create --resource-group $AZURE_RESOURCE_GROUP --template-file ./main.json --parameters sqlAdminPassword=$SQL_ADMIN_PASSWORD repositoryToken=$REPOSITORY_TOKEN tenantId=$TENANT_ID endpointName=$ENDPOINT_NAME profileName=$PROFILE_NAME SWAName=$SWA_NAME
+        az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
+          --template-file ./main.json \
+          --parameters sqlAdminPassword=$SQL_ADMIN_PASSWORD \
+          repositoryToken=$REPOSITORY_TOKEN tenantId=$TENANT_ID \
+          endpointName=$ENDPOINT_NAME profileName=$PROFILE_NAME \
+          SWAName=$SWA_NAME branch=$BRANCH repositoryUrl=$REPOSITORY_URL \
+          sku=$SKU skucode=$SKUCODE
 
     - name: Logout of Azure CLI
       run: az logout
