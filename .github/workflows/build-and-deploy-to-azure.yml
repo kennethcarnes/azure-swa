@@ -1,0 +1,112 @@
+# This workflow is named "Build and Deploy to Azure"
+name: Build and Deploy to Azure
+
+# Specifies the event that triggers the workflow - in this case, a push event to the main branch.
+on:
+  push:
+    branches:
+      - main
+
+# Defines two jobs: 'build-bicep' and 'deploy-bicep'.
+jobs:
+
+  # First job: Builds the Bicep file.
+  build-bicep:
+    # Specifies the type of runner (virtual machine) the job will run on.
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest runner.
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Logs into Azure using the Azure CLI and the provided credentials.
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Builds the Bicep file to generate the corresponding ARM template in JSON format.
+      - name: Build Main Bicep
+        run: |
+          az bicep build -f ./main.bicep
+          # Checks the exit status of the last command (az bicep build). If it failed, it echoes an error message.
+          if [ $? -ne 0 ]; then
+            echo "Error building the Bicep file!"
+            exit 1
+          fi
+
+      # Uploads the generated JSON file as an artifact for use in subsequent jobs.
+      - name: Upload Main Bicep JSON
+        uses: actions/upload-artifact@v2
+        with:
+          name: main-json
+          path: ./main.json
+
+      # Logs out of Azure to end the session.
+      - name: Logout of Azure CLI
+        run: az logout
+
+  # Second job: Deploys the Bicep (JSON) to Azure. This job depends on the successful completion of the 'build-bicep' job.
+  deploy-bicep:
+    needs: build-bicep
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest runner.
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Downloads the previously uploaded JSON artifact to the current runner.
+      - name: Download Main Bicep JSON
+        uses: actions/download-artifact@v2
+        with:
+          name: main-json
+          path: ./main.json
+
+      # Logs into Azure using the Azure CLI and the provided credentials.
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Deploys the ARM template (JSON) to Azure using the provided parameters.
+      - name: Deploy Main Bicep
+        env:
+          # Environment variables that are used in the deployment command below.
+          REPOSITORY_URL: ${{ github.repository }}
+          BRANCH: ${{ github.ref }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          LOCATION: ${{ secrets.LOCATION }}
+          REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
+          SWA_NAME: ${{ secrets.SWA_NAME }}
+          SWA_SKU: ${{ secrets.SWA_SKU }}
+        run: |
+          az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
+            --template-file ./main.json \
+            --parameters \
+            repositoryUrl=$REPOSITORY_URL \
+            branch=$BRANCH \
+            subscriptionId=$AZURE_SUBSCRIPTION_ID \
+            tenantId=$AZURE_TENANT_ID \
+            location=$LOCATION \
+            repositoryToken=$REPOSITORY_TOKEN \
+            swaName=$SWA_NAME \
+            swaSku=$SWA_SKU
+          # Checks the exit status of the last command (az deployment group create). If it failed, it echoes an error message.
+          if [ $? -ne 0 ]; then
+            echo "Error deploying the Bicep JSON!"
+            exit 1
+          fi
+
+      # Logs out of Azure to end the session.
+      - name: Logout of Azure CLI
+        run: az logout
