@@ -1,156 +1,107 @@
-# High-Level Breakdown
+# Azure Bicep with GitHub Actions CI/CD Workflow
 
-- Web Development: Design the Angular website.
-- Infrastructure As Code: Update and extend your existing Bicep template and - parameters file.
-- CI/CD Configuration: Adjust your GitHub actions for building, testing, and - deploying.
-- Backend Development: Create Azure Functions and Azure SQL integration.
-- Monitoring: Integrate Azure Monitor, Log Analytics, and Application Insights.
+Personal project to demonstrate a multi-environment deployment strategy using Azure Bicep and GitHub Actions. 
 
-## 1. Angular Website Development
+## Directory Structure
 
-Here's a basic structure for the Angular web app:
-
-```
-src/
-|-- app/
-|   |-- landing-page/
-|   |   |-- landing-page.component.html
-|   |   |-- landing-page.component.ts
-|   |   |-- landing-page.component.scss
-|   |-- app.module.ts
-|   |-- app.component.ts
-|-- styles.scss
-|-- index.html
-|-- main.ts
-```  
-
-In landing-page.component.html, you'd have your photo, name, tagline, and the buttons for LinkedIn, GitHub, resume download, blog, and contact form.
-
-Install Node.js:
-choco install nodejs   
-
-Verify the Installation:     
-node -v
-npm -v
-
-1. Setting up the Angular Application
-
-Install Angular CLI
-npm install -g @angular/cli
-
-create a new Angular app:
-ng new app
-
-Change into your project directory:
-cd my-website
-
-2. create components:
-ng generate component landing
-ng generate component contact-form
-
-3. add a Simple Landing Page with your Information
-
-in landing.component.html:
-<div class="centered">
-  <img src="path_to_your_photo.jpg" alt="Your name">
-  <h1>Your Name</h1>
-  <p>Your Tagline</p>
-  
-  <a href="https://linkedin.com/in/your-profile" target="_blank">LinkedIn</a>
-  <a href="https://github.com/your-profile" target="_blank">GitHub</a>
-  <a href="path_to_your_resume.pdf" target="_blank">Download Resume</a>
-  <a href="https://linkedin.com/in/your-blog" target="_blank">Blog</a>
-  <button (click)="showContactForm()">Contact Me</button>
-</div>
-
-In landing.component.ts:
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-landing',
-  templateUrl: './landing.component.html',
-  styleUrls: ['./landing.component.css']
-})
-export class LandingComponent {
-
-  showContactForm() {
-    // Logic to show contact form or navigate to the contact form page
-  }
-
-}
-
-For contact-form.component.html and contact-form.component.ts, you would have a basic form structure that collects the user's details and message. The form data would then be sent to your Azure Function (backend) which can then store it in the Azure SQL Database.
-
-4. Styling and Dark Mode
-  
-For the dark mode colors and to make the elements centered, start with the following in landing.component.css:
-.centered {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #121212;
-  color: #FFFFFF;
-}
-
-/* Add more styles for the links, button, and image */
-
-For the Microsoft Learn Documentation-like font, use "Segoe UI". You'd include this in the global styles.css:
-* {
-  font-family: 'Segoe UI', sans-serif;
-}
-
-Once the basic app is set up and you're satisfied with its behavior locally, move onto integrating this with the Azure Static Web App Service
-
-## 2. Infrastructure As Code 
-
-You'll want to expand the existing main.bicep to include resources for:
-
-- Azure Functions (backend)
-- Azure SQL Database (backend data storage)
-- Azure CDN
-- Azure DNS Zone update
-- Azure Key Vault (for storing secrets)
-- Azure Monitor, Log Analytics, and Application Insights for monitoring
-
-# -
-# -
-# -
-# -
-# -
-# -
-# -
-# -
-# -
-
-
-# -
-# Overview
-This project uses GitHub Actions, Bicep, and Azure CLI to deploy a static web app to Azure.
-
-```
-  azure-static-web-apps-jolly-island-0b433f610.yml
-                |
-                v
-           deploy.azcli
-                |
-                v
-            main.bicep
-                |
-                v
-          parameters.json
+```powershell
+.
+├── .github
+│   └── workflows
+│       └── build-and-deploy-to-azure.yml
+└── infra
+    ├── main.bicep
+    ├── frontend.bicep
+    ├── backend.bicep
+    └── ... (other infrastructure files)
 ```
 
-| File name                                        | Description               |
-| ------------------------------------------------ | ------------------------- |
-| azure-static-web-apps-jolly-island-0b433f610.yml | workflow file             |
-| deploy.azcli                                     | deploys main.bicep        |
-| main.bicep                                       | IaC template              |
-| parameters.json                                  | Parameters for main.bicep |
+## Setting Up GitHub Secrets
 
-# References
+For each environment (e.g., dev, test, prod), set up corresponding secrets:
 
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Bicep Documentation](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview)
-- [Azure CLI Documentation](https://docs.microsoft.com/en-us/cli/azure/) 
+- `DEV_SWA_NAME`, `TEST_SWA_NAME`, `PROD_SWA_NAME`
+- `DEV_AZURE_RESOURCE_GROUP`, `STAGING_AZURE_RESOURCE_GROUP`, etc.
+- `AZURE_CREDENTIALS` (common across environments or specific to each)
+
+## IaC
+### Bicep Files
+- **main.bicep**: As central orchestrator, this file will invoke other bicep modules as needed.
+- **frontend.bicep, backend.bicep, ect.**: Resource-specific templates.
+
+### Parameters
+- **Use Generic Paramaters** instead of hardcoding values in your .bicep files.
+  ```yaml
+  param swaName string
+  param location string
+  param swaSku string
+  // ... other parameters
+  ```
+
+## GitHub Actions Workflow
+### Environments feature
+- Define environments in GitHub Actions such as dev, staging, and prod.
+- Assign environment-specific secrets to each environment in GitHub.
+- GitHub Actions will decide which secrets to use based on the triggering branch or event.
+### Workflow structure
+- Trigger the workflow on push or PR events.
+- Have a job for building the Bicep file.
+- Have another job with branching logic for each environment. Use conditions to determine which environment to deploy to based on branches or other conditions.
+  ```yaml
+  name: Build and Deploy to Azure
+
+  on:
+    push:
+      branches:
+        - main
+        - develop
+        # ... other branches or conditions
+
+  jobs:
+    # ... (Building and other jobs)
+
+    deploy:
+      needs: [otherJobNames]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Set environment
+          run: |
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              echo "SWA_NAME=${{ secrets.PROD_SWA_NAME }}" >> $GITHUB_ENV
+              # ... set other prod variables
+            elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+              echo "SWA_NAME=${{ secrets.DEV_SWA_NAME }}" >> $GITHUB_ENV
+              # ... set other dev variables
+            fi
+
+        # ... (Rest of the deployment steps)
+
+## Workflow Example
+### 1. Developer pushes to the develop branch:
+- GitHub Actions workflow triggers.
+- GitHub Actions sees it's the `develop` branch and chooses the `DEV_*` secrets.
+- Bicep files are built.
+- Deployment starts, with main.bicep getting the values like:
+  - `swaName` from `DEV_SWA_NAME` secret.
+- `main.bicep` then passes this `swaName` value to the other Bicep files it orchestrates, like `frontend.bicep`.
+### 2. Developer pushes to the main branch:
+- Workflow is similar, but this time `PROD_*`` secrets are used.
+- Deployment will be to the production environment using production-specific configurations.
+
+## Considerations
+- The IaC remains clean and doesn't have any branching logic or environment-specific details.
+- Environment management and CI/CD complexities are handled in the GitHub Actions workflow.
+- Secrets and configurations for each environment are stored and managed in GitHub Secrets.
+
+This provides clear separation in terms of where configurations for each environment reside, and flexibility to adapt the CI/CD process as needed without touching the IaC.
+
+### Advantages
+- **Compact:** Less redundant code if deployment steps are largely identical across environments.
+- **Unified Workflow:** A single job handles deployment, which might be easier to monitor and manage if you want all deployments to follow the exact same pattern.
+
+### Disadvantages
+- **Complexity:** As you add more environments, the branching logic can become lengthy and more challenging to manage.
+- **Less Flexible:** If a specific environment requires a unique deployment step, integrating it can become more convoluted.
