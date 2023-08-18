@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenneth Carnes' Portfolio</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div class="centered-container">
+        <div class="centered">
+            <img src="../assets/Photo.jpg" alt="Kenneth Carnes">
+            <h1>Kenneth Carnes</h1>
+            <p>Azure AD • Microsoft 365 • PowerShell</p>
+            <a href="https://linkedin.com/in/kennethcarnes1" target="_blank" class="action-button">LinkedIn</a>
+            <a href="https://github.com/kennethcarnes" target="_blank" class="action-button">GitHub</a>
+            <a href="https://linkedin.com/in/kennethcarnes1/recent-activity/articles/" target="_blank" class="action-button">Blog</a>
+            <a href="../assets/Kenneth-Carnes-Resume.pdf" target="_blank" class="action-button">Resume</a>
+            <button id="contactButton" class="action-button">Contact</button>
+        </div>
+    </div>
+    <script>
+        // Get modal elements
+        const contactModal = document.createElement("div");
+        contactModal.classList.add("modal");
+        contactModal.innerHTML = `
+            <div class="modal-content">
+                <h2>Contact Me</h2>
+                <input type="text" placeholder="Name">
+                <input type="text" placeholder="Email">
+                <textarea rows="5" placeholder="Your Message"></textarea>
+                <button class="action-button">Send Message</button>
+            </div>
+        `;
+        document.body.appendChild(contactModal);
+        
+        const contactButton = document.getElementById('contactButton');
+        const modalContent = document.querySelector('.modal-content');
+        
+        contactButton.addEventListener('click', () => {
+            contactModal.style.display = "block";
+        });
+        
+        contactModal.addEventListener('click', (e) => {
+            if (e.target !== modalContent && !modalContent.contains(e.target)) {
+                contactModal.style.display = "none";
+            }
+        });
+    </script>
+</body>
