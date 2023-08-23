@@ -32,7 +32,7 @@ jobs:
       # Builds the Bicep file to generate the corresponding ARM template in JSON format.
       - name: Build Main Bicep
         run: |
-          az bicep build -f ./main.bicep
+          az bicep build -f ./infra/main.bicep
           # Checks the exit status of the last command (az bicep build). If it failed, it echoes an error message.
           if [ $? -ne 0 ]; then
             echo "Error building the Bicep file!"
