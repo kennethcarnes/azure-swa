@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: main-json
-          path: ./main.json
+          path: ./infra/main.json
 
       # Logs out of Azure to end the session.
       - name: Logout of Azure CLI
@@ -68,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: main-json
-          path: ./main.json
+          path: ./infra/main.json
 
       # Logs into Azure using the Azure CLI and the provided credentials.
       - name: Login to Azure CLI
@@ -91,7 +91,7 @@ jobs:
           SWA_SKU: ${{ secrets.SWA_SKU }}
         run: |
           az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
-            --template-file ./main.json \
+            --template-file ./infra/main.json \
             --parameters \
             repositoryUrl=$REPOSITORY_URL \
             branch=$BRANCH \
