@@ -39,6 +39,9 @@ jobs:
             exit 1
           fi
 
+      - name: List infra directory contents
+        run: ls -la ./infra/
+
       # Uploads the generated JSON file as an artifact for use in subsequent jobs.
       - name: Upload Main Bicep JSON
         uses: actions/upload-artifact@v2
