@@ -10,7 +10,7 @@ param appLocation string = '/'
 param apiLocation string = 'api'
 param appArtifactLocation string = ''
 
-resource swa 'Microsoft.Web/staticSites@2021-01-01' = {
+resource swa 'Microsoft.Web/staticSites@2022-03-01' = {
   name: swaName
   location: location
   sku: {
