@@ -75,7 +75,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
+      
       # Deploys the ARM template (JSON) to Azure using the provided parameters.
       - name: Deploy Main Bicep
         env:
@@ -87,7 +87,12 @@ jobs:
           REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
           SWA_NAME: ${{ secrets.SWA_NAME }}
           SWA_SKU: ${{ secrets.SWA_SKU }}
+          
         run: |
+          echo "REPOSITORY_URL=$REPOSITORY_URL"
+          echo "BRANCH=$BRANCH"
+          ls -l ./infra/
+          head -n 5 ./infra/main.json  # Display first 5 lines of main.json; remove this if sensitive data is there
           az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
             --template-file ./infra/main.json \
             --parameters \
@@ -106,3 +111,5 @@ jobs:
       # Logs out of Azure to end the session.
       - name: Logout of Azure CLI
         run: az logout
+
+        
