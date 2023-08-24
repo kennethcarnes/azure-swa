@@ -39,15 +39,12 @@ jobs:
             exit 1
           fi
 
-      - name: List infra directory contents
-        run: ls -la ./infra/
-
       # Uploads the generated JSON file as an artifact for use in subsequent jobs.
       - name: Upload Main Bicep JSON
         uses: actions/upload-artifact@v2
         with:
           name: main-json
-          path: ./infra/main.json
+          path: ./infra/
 
       # Logs out of Azure to end the session.
       - name: Logout of Azure CLI
@@ -71,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: main-json
-          path: ./infra/main.json
+          path: ./infra/
 
       # Logs into Azure using the Azure CLI and the provided credentials.
       - name: Login to Azure CLI
