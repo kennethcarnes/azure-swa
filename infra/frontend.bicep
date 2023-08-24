@@ -14,6 +14,7 @@ resource swa 'Microsoft.Web/staticSites@2022-03-01' = {
   name: swaName
   location: location
   sku: {
+    name: swaSku
     tier: swaSku
   }
   properties: {
