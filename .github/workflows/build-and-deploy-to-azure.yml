@@ -83,8 +83,6 @@ jobs:
           REPOSITORY_URL: ${{ github.repository }}
           BRANCH: ${{ github.ref }}
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          #AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          #AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           LOCATION: ${{ secrets.LOCATION }}
           REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
           SWA_NAME: ${{ secrets.SWA_NAME }}
@@ -95,8 +93,6 @@ jobs:
             --parameters \
             repositoryUrl=$REPOSITORY_URL \
             branch=$BRANCH \
-            # subscriptionId=$AZURE_SUBSCRIPTION_ID \
-            # tenantId=$AZURE_TENANT_ID \
             location=$LOCATION \
             repositoryToken=$REPOSITORY_TOKEN \
             swaName=$SWA_NAME \
