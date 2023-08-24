@@ -80,8 +80,8 @@ jobs:
       - name: Deploy Main Bicep
         env:
           # Environment variables that are used in the deployment command below.
-          REPOSITORY_URL: ${{ github.repository }}
-          BRANCH: ${{ github.ref }}
+          REPOSITORY_URL: ${{ secrets.REPOSITORY_URL }}
+          BRANCH: ${{ secrets.BRANCH }}
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           LOCATION: ${{ secrets.LOCATION }}
           REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
