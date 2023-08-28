@@ -131,6 +131,7 @@ jobs:
       - name: Upload Assets to Azure Blob Storage
         env:
           STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
+          BLOB_CONTAINER_NAME: ${{ secrets.BLOB_CONTAINER_NAME }}
 
         run: |
           for file in ./assets/*; do
