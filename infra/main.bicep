@@ -6,6 +6,7 @@ param repositoryUrl string
 param branch string
 param repositoryToken string
 param storageAccountName string
+param blobContainerName string
 param appLocation string = 'src'
 param apiLocation string = 'api'
 param appArtifactLocation string = 'dist'
@@ -29,6 +30,7 @@ module storage './backend.bicep' = {
   name: 'backendDeployment'
   params: {
     storageAccountName: storageAccountName
+    blobContainerName: blobContainerName
     location: location
   }
 }

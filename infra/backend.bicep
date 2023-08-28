@@ -1,5 +1,6 @@
 // backend.bicep
 param storageAccountName string
+param blobContainerName string
 param location string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
@@ -21,7 +22,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01'
 
 resource storageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
   parent: blobService
-  name: 'assets'
+  name: blobContainerName
   properties: {
     publicAccess: 'Blob'
   }

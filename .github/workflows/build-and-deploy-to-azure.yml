@@ -88,6 +88,7 @@ jobs:
           SWA_NAME: ${{ secrets.SWA_NAME }}
           SWA_SKU: ${{ secrets.SWA_SKU }}
           STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
+          BLOB_CONTAINER_NAME: ${{ secrets.BLOB_CONTAINER_NAME }}
           
         run: |
           az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
@@ -99,7 +100,8 @@ jobs:
             repositoryToken=$REPOSITORY_TOKEN \
             swaName=$SWA_NAME \
             swaSku=$SWA_SKU \
-            storageAccountName=$STORAGE_ACCOUNT_NAME
+            storageAccountName=$STORAGE_ACCOUNT_NAME \
+            blobContainerName=$BLOB_CONTAINER_NAME
           # Checks the exit status of the last command (az deployment group create). If it failed, it echoes an error message.
           if [ $? -ne 0 ]; then
             echo "Error deploying the Bicep JSON!"
@@ -131,10 +133,10 @@ jobs:
           STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
 
         run: |
-          for file in /assets/*; do
+          for file in ./assets/*; do
             az storage blob upload \
               --account-name $STORAGE_ACCOUNT_NAME \
-              --container-name mycontainer \
+              --container-name $BLOB_CONTAINER_NAME \
               --name "$(basename "$file")" \
               --file "$file"
           done
@@ -161,4 +163,3 @@ jobs:
         
         run: |
           python update-placeholders.py  # Make sure the script path is correct 
-          
