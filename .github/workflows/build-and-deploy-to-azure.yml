@@ -140,7 +140,6 @@ jobs:
               --container-name $BLOB_CONTAINER_NAME \
               --name "$(basename "$file")" \
               --file "$file" \
-              --auth-mode login \
               --overwrite true
           done
 
