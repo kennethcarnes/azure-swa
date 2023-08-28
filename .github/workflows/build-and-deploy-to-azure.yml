@@ -139,7 +139,8 @@ jobs:
               --account-name $STORAGE_ACCOUNT_NAME \
               --container-name $BLOB_CONTAINER_NAME \
               --name "$(basename "$file")" \
-              --file "$file"
+              --file "$file" \
+              --auth-mode login \
               --overwrite true
           done
 
