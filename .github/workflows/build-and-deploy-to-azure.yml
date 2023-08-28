@@ -98,7 +98,8 @@ jobs:
             location=$LOCATION \
             repositoryToken=$REPOSITORY_TOKEN \
             swaName=$SWA_NAME \
-            swaSku=$SWA_SKU
+            swaSku=$SWA_SKU \
+            storageAccountName=$STORAGE_ACCOUNT_NAME
           # Checks the exit status of the last command (az deployment group create). If it failed, it echoes an error message.
           if [ $? -ne 0 ]; then
             echo "Error deploying the Bicep JSON!"
