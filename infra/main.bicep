@@ -5,6 +5,7 @@ param swaSku string
 param repositoryUrl string
 param branch string
 param repositoryToken string
+param storageAccountName string
 param appLocation string = 'src'
 param apiLocation string = 'api'
 param appArtifactLocation string = 'dist'
@@ -22,4 +23,12 @@ params: {
   apiLocation: apiLocation
   appArtifactLocation: appArtifactLocation
 }
+}
+
+module storage './backend.bicep' = {
+  name: 'backendDeployment'
+  params: {
+    storageAccountName: storageAccountName
+    location: location
+  }
 }

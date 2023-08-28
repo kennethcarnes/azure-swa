@@ -87,12 +87,9 @@ jobs:
           REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
           SWA_NAME: ${{ secrets.SWA_NAME }}
           SWA_SKU: ${{ secrets.SWA_SKU }}
+          STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
           
         run: |
-          echo "REPOSITORY_URL=$REPOSITORY_URL"
-          echo "BRANCH=$BRANCH"
-          ls -l ./infra/
-          head -n 5 ./infra/main.json  # Display first 5 lines of main.json; remove this if sensitive data is there
           az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
             --template-file ./infra/main.json \
             --parameters \
@@ -112,4 +109,54 @@ jobs:
       - name: Logout of Azure CLI
         run: az logout
 
+  upload-to-blob:
+    needs: [build-bicep, deploy-bicep]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload Assets to Azure Blob Storage
+        env:
+          STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
+
+        run: |
+          for file in /assets/*; do
+            az storage blob upload \
+              --account-name $STORAGE_ACCOUNT_NAME \
+              --container-name mycontainer \
+              --name "$(basename "$file")" \
+              --file "$file"
+          done
+
+      - name: Logout of Azure CLI
+        run: az logout
+
+  replace-placeholders:
+    needs: upload-to-blob  # This ensures that files are uploaded before placeholders are replaced
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Update Asset Placeholders
+        env:
+          STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
         
+        run: |
+          python update-placeholders.py  # Make sure the script path is correct
