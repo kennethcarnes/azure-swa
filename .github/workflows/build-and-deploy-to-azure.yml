@@ -140,6 +140,7 @@ jobs:
               --container-name $BLOB_CONTAINER_NAME \
               --name "$(basename "$file")" \
               --file "$file"
+              --overwrite true
           done
 
       - name: Logout of Azure CLI
