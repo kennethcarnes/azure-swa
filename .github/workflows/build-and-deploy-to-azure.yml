@@ -163,4 +163,4 @@ jobs:
           STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
         
         run: |
-          python update-placeholders.py  # Make sure the script path is correct 
+          python ./scripts/update-placeholders.py
