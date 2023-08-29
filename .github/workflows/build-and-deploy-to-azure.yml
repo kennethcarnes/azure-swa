@@ -63,7 +63,7 @@ jobs:
           BLOB_CONTAINER_NAME: ${{ secrets.BLOB_CONTAINER_NAME }}
         run: |
             az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
-            --template-file ./infra/main.json \
+            --template-file ./infra/backend.json \
             --parameters \
             deployBackend=true \
             deployFrontend=false \
@@ -158,7 +158,7 @@ jobs:
           SWA_SKU: ${{ secrets.SWA_SKU }}
         run: |
             az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
-            --template-file ./infra/main.json \
+            --template-file ./infra/frontend.json \
             --parameters \
             deployBackend=false \
             deployFrontend=true \
