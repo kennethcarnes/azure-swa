@@ -1,85 +1,57 @@
-# This workflow is named "Build and Deploy to Azure"
 name: Build and Deploy to Azure
 
-# Specifies the event that triggers the workflow - in this case, a push event to the main branch.
 on:
   push:
     branches:
       - main
 
-# Defines two jobs: 'build-bicep' and 'deploy-bicep'.
 jobs:
-
-  # First job: Builds the Bicep file.
   build-bicep:
-    # Specifies the type of runner (virtual machine) the job will run on.
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [frontend, backend]
     permissions:
       id-token: write
       contents: read
-
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest runner.
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      # Logs into Azure using the Azure CLI and the provided credentials.
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Builds the Bicep file to generate the corresponding ARM template in JSON format.
-      - name: Build Main Bicep
+      - name: Build Bicep
         run: |
-          az bicep build -f ./infra/main.bicep
-          # Checks the exit status of the last command (az bicep build). If it failed, it echoes an error message.
-          if [ $? -ne 0 ]; then
-            echo "Error building the Bicep file!"
-            exit 1
-          fi
-
-      # Uploads the generated JSON file as an artifact for use in subsequent jobs.
-      - name: Upload Main Bicep JSON
+          az bicep build -f ./infra/${{ matrix.component }}.bicep
+      - name: Upload Bicep JSON
         uses: actions/upload-artifact@v2
         with:
-          name: main-json
+          name: ${{ matrix.component }}-json
           path: ./infra/
-
-      # Logs out of Azure to end the session.
       - name: Logout of Azure CLI
         run: az logout
 
-  # Second job: Deploys the Bicep (JSON) to Azure. This job depends on the successful completion of the 'build-bicep' job.
-  deploy-bicep:
+  deploy-backend:
     needs: build-bicep
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest runner.
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      # Downloads the previously uploaded JSON artifact to the current runner.
-      - name: Download Main Bicep JSON
+      - name: Download Bicep JSON
         uses: actions/download-artifact@v2
         with:
-          name: main-json
+          name: backend-json
           path: ./infra/
-
-      # Logs into Azure using the Azure CLI and the provided credentials.
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      # Deploys the ARM template (JSON) to Azure using the provided parameters.
-      - name: Deploy Main Bicep
+      - name: Deploy Backend Only
         env:
-          # Environment variables that are used in the deployment command below.
           REPOSITORY_URL: ${{ secrets.REPOSITORY_URL }}
           BRANCH: ${{ secrets.BRANCH }}
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
@@ -89,50 +61,35 @@ jobs:
           SWA_SKU: ${{ secrets.SWA_SKU }}
           STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
           BLOB_CONTAINER_NAME: ${{ secrets.BLOB_CONTAINER_NAME }}
-          
         run: |
-          az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
+            az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
             --template-file ./infra/main.json \
             --parameters \
-            repositoryUrl=$REPOSITORY_URL \
-            branch=$BRANCH \
+            deployBackend=true \
+            deployFrontend=false \
             location=$LOCATION \
-            repositoryToken=$REPOSITORY_TOKEN \
-            swaName=$SWA_NAME \
-            swaSku=$SWA_SKU \
             storageAccountName=$STORAGE_ACCOUNT_NAME \
             blobContainerName=$BLOB_CONTAINER_NAME
-          # Checks the exit status of the last command (az deployment group create). If it failed, it echoes an error message.
-          if [ $? -ne 0 ]; then
-            echo "Error deploying the Bicep JSON!"
-            exit 1
-          fi
-
-      # Logs out of Azure to end the session.
       - name: Logout of Azure CLI
         run: az logout
 
   upload-to-blob:
-    needs: [build-bicep, deploy-bicep]
+    needs: [build-bicep, deploy-backend]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
       - name: Login to Azure CLI
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Upload Assets to Azure Blob Storage
         env:
           STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
           BLOB_CONTAINER_NAME: ${{ secrets.BLOB_CONTAINER_NAME }}
-
         run: |
           for file in ./assets/*; do
             az storage blob upload \
@@ -142,31 +99,25 @@ jobs:
               --file "$file" \
               --overwrite true
           done
-
       - name: Logout of Azure CLI
         run: az logout
 
   replace-placeholders:
-    needs: upload-to-blob  # This ensures that files are uploaded before placeholders are replaced
+    needs: [build-bicep, deploy-backend, upload-to-blob]
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
       - name: Set up Python environment
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-
       - name: Update Asset Placeholders
         env:
           STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
           BLOB_CONTAINER_NAME: ${{ secrets.BLOB_CONTAINER_NAME }}
         run: |
           python ./scripts/update-placeholders.py
-
-      # Commit and push changes back to the repository
       - name: Commit and push if changed
         run: |
           git config --global user.email "actions@github.com"
@@ -174,3 +125,48 @@ jobs:
           git add -A
           git diff-index --quiet HEAD || git commit -m "Automatically replaced asset placeholders [skip ci]"
           git push origin main
+
+  deploy-frontend:
+    needs: [build-bicep, deploy-backend, upload-to-blob, replace-placeholders]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [frontend, backend]
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Download Bicep JSON
+        uses: actions/download-artifact@v2
+        with:
+          name: frontend-json
+          path: ./infra/
+      - name: Login to Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Deploy Frontend Only
+        env:
+          REPOSITORY_URL: ${{ secrets.REPOSITORY_URL }}
+          BRANCH: ${{ secrets.BRANCH }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          LOCATION: ${{ secrets.LOCATION }}
+          REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
+          SWA_NAME: ${{ secrets.SWA_NAME }}
+          SWA_SKU: ${{ secrets.SWA_SKU }}
+        run: |
+            az deployment group create --resource-group $AZURE_RESOURCE_GROUP \
+            --template-file ./infra/main.json \
+            --parameters \
+            deployBackend=false \
+            deployFrontend=true \
+            repositoryUrl=$REPOSITORY_URL \
+            branch=$BRANCH \
+            location=$LOCATION \
+            repositoryToken=$REPOSITORY_TOKEN \
+            swaName=$SWA_NAME \
+            swaSku=$SWA_SKU
+      - name: Logout of Azure CLI
+        run: az logout

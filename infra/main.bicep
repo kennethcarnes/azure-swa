@@ -1,4 +1,5 @@
-// main.bicep
+param deployFrontend bool = true
+param deployBackend bool = true
 param location string
 param swaName string
 param swaSku string
@@ -11,7 +12,7 @@ param appLocation string = 'src'
 param apiLocation string = 'api'
 param appArtifactLocation string = 'dist'
 
-module frontend './frontend.bicep' = {
+module frontend './frontend.bicep' = if (deployFrontend) {
 name: 'frontendDeployment'
 params: {
   swaName: swaName
@@ -26,7 +27,7 @@ params: {
 }
 }
 
-module storage './backend.bicep' = {
+module storage './backend.bicep' = if (deployBackend) {
   name: 'backendDeployment'
   params: {
     storageAccountName: storageAccountName
