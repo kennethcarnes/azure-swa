@@ -161,10 +161,12 @@ jobs:
             --parameters \
             deployBackend=false \
             deployFrontend=true \
-            repositoryUrl=$REPOSITORY_URL \
-            branch=$BRANCH \
             location=$LOCATION \
+            storageAccountName=$STORAGE_ACCOUNT_NAME \
+            blobContainerName=$BLOB_CONTAINER_NAME \
+            branch=$BRANCH \
             repositoryToken=$REPOSITORY_TOKEN \
+            repositoryUrl=$REPOSITORY_URL \
             swaName=$SWA_NAME \
             swaSku=$SWA_SKU
       - name: Logout of Azure CLI
