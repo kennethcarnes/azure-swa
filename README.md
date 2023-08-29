@@ -1,107 +1,83 @@
-# Azure Bicep with GitHub Actions CI/CD Workflow
+# Overview
+This project uses GitHub Actions, Bicep, and Azure CLI to deploy a static web app and dynamic assets stored in blob storage.
 
-Personal project to demonstrate a multi-environment deployment strategy using Azure Bicep and GitHub Actions. 
 
-## Directory Structure
+## DevOps Practices
+### Infrastructure as Code (IaC)
+Infrastructure for the project is managed using Azure Bicep files located under the `infra` directory.
 
-```powershell
-.
+```bicep
+// Example from backend.bicep
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
+  name: storageAccountName
+  location: location
+  ...
+}
+```
+### Continuous Integration/Continuous Deployment (CI/CD)
+CI/CD is managed using GitHub Actions. The workflow is defined in the `.github/workflows/build-and-deploy-to-azure.yml` file.
+
+```yaml
+name: Build and Deploy to Azure
+
+on:
+  push:
+    branches:
+      - main
+      ...
+```
+### Version Control
+Git is used for version control with meaningful commit messages.
+## File Structure
+```
 ├── .github
-│   └── workflows
-│       └── build-and-deploy-to-azure.yml
-└── infra
-    ├── main.bicep
-    ├── frontend.bicep
-    ├── backend.bicep
-    └── ... (other infrastructure files)
+│ └── workflows
+│ └── build-and-deploy-to-azure.yml
+├── assets
+│ ├── Kenneth-Carnes-Resume.pdf
+│ └── Photo.jpg
+├── infra
+│ ├── backend.bicep
+│ ├── frontend.bicep
+│ └── main.bicep
+├── scripts
+│ └── update-placeholders.py
+└── src
+├── index.html
+└── css
+└── styles.css
+```
+## Azure Role-Based Access Control (RBAC) Setup
+This guide walks you through the process of setting up Azure RBAC using Azure CLI commands.
+
+### Prerequisites
+Make sure you have Azure CLI installed and you're logged in to your Azure account.
+
+### 1. Create an Azure Active Directory Application
+
+```
+az ad app create --display-name "display-name"
 ```
 
-## Setting Up GitHub Secrets
+### 2. Create a service principal for the Azure AD application.
+Replace `<App ID>` with the ID of the Azure AD application you created in Step 1.
 
-For each environment (e.g., dev, test, prod), set up corresponding secrets:
+```bash
+az ad sp create --id "<App ID>"
+```
 
-- `DEV_SWA_NAME`, `TEST_SWA_NAME`, `PROD_SWA_NAME`
-- `DEV_AZURE_RESOURCE_GROUP`, `STAGING_AZURE_RESOURCE_GROUP`, etc.
-- `AZURE_CREDENTIALS` (common across environments or specific to each)
+### 3. Create a Resource Group
+```bash
+az group create --name "rg-name-prod-001" --location "eastus2"
+```
 
-## IaC
-### Bicep Files
-- **main.bicep**: As central orchestrator, this file will invoke other bicep modules as needed.
-- **frontend.bicep, backend.bicep, ect.**: Resource-specific templates.
-
-### Parameters
-- **Use Generic Paramaters** instead of hardcoding values in your .bicep files.
-  ```yaml
-  param swaName string
-  param location string
-  param swaSku string
-  // ... other parameters
-  ```
-
-## GitHub Actions Workflow
-### Environments feature
-- Define environments in GitHub Actions such as dev, staging, and prod.
-- Assign environment-specific secrets to each environment in GitHub.
-- GitHub Actions will decide which secrets to use based on the triggering branch or event.
-### Workflow structure
-- Trigger the workflow on push or PR events.
-- Have a job for building the Bicep file.
-- Have another job with branching logic for each environment. Use conditions to determine which environment to deploy to based on branches or other conditions.
-  ```yaml
-  name: Build and Deploy to Azure
-
-  on:
-    push:
-      branches:
-        - main
-        - develop
-        # ... other branches or conditions
-
-  jobs:
-    # ... (Building and other jobs)
-
-    deploy:
-      needs: [otherJobNames]
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-
-        - name: Set environment
-          run: |
-            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-              echo "SWA_NAME=${{ secrets.PROD_SWA_NAME }}" >> $GITHUB_ENV
-              # ... set other prod variables
-            elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-              echo "SWA_NAME=${{ secrets.DEV_SWA_NAME }}" >> $GITHUB_ENV
-              # ... set other dev variables
-            fi
-
-        # ... (Rest of the deployment steps)
-
-## Workflow Example
-### 1. Developer pushes to the develop branch:
-- GitHub Actions workflow triggers.
-- GitHub Actions sees it's the `develop` branch and chooses the `DEV_*` secrets.
-- Bicep files are built.
-- Deployment starts, with main.bicep getting the values like:
-  - `swaName` from `DEV_SWA_NAME` secret.
-- `main.bicep` then passes this `swaName` value to the other Bicep files it orchestrates, like `frontend.bicep`.
-### 2. Developer pushes to the main branch:
-- Workflow is similar, but this time `PROD_*`` secrets are used.
-- Deployment will be to the production environment using production-specific configurations.
-
-## Considerations
-- The IaC remains clean and doesn't have any branching logic or environment-specific details.
-- Environment management and CI/CD complexities are handled in the GitHub Actions workflow.
-- Secrets and configurations for each environment are stored and managed in GitHub Secrets.
-
-This provides clear separation in terms of where configurations for each environment reside, and flexibility to adapt the CI/CD process as needed without touching the IaC.
-
-### Advantages
-- **Compact:** Less redundant code if deployment steps are largely identical across environments.
-- **Unified Workflow:** A single job handles deployment, which might be easier to monitor and manage if you want all deployments to follow the exact same pattern.
-
-### Disadvantages
-- **Complexity:** As you add more environments, the branching logic can become lengthy and more challenging to manage.
-- **Less Flexible:** If a specific environment requires a unique deployment step, integrating it can become more convoluted.
+### 4. Assign Roles
+Replace `<Subscription ID>` and `<Object ID>` with your Azure Subscription ID and the Object ID of the service principal you created in Step 2. Assign `contributor` role to the service principal for a specific resource group
+```bash
+az role assignment create --role "contributor" --subscription "<Subscription ID>" --assignee-object-id "<Object ID>" --assignee-principal-type "ServicePrincipal" --scope "/subscriptions/<Subscription ID>/resourceGroups/rg-name-prod-001"
+```
+### 5. Create Service Principal for RBAC.
+Replace `<App ID>` and `<Subscription ID>` with your Azure Application ID and Subscription ID, respectively. Create a service principal and assign it `contributor` role within the scope of the specific resource group.
+```bash
+az ad sp create-for-rbac --name "kc-app-github-azure-swa" --role "contributor" --scopes "/subscriptions/<Subscription ID>/resourceGroups/rg-name-prod-001" --sdk-auth
+```
