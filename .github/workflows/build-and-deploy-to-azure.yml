@@ -8,9 +8,6 @@ on:
 jobs:
   build-bicep:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        component: [frontend, backend]
     permissions:
       id-token: write
       contents: read
@@ -23,11 +20,11 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Build Bicep
         run: |
-          az bicep build -f ./infra/${{ matrix.component }}.bicep
+          az bicep build -f ./infra/main.bicep
       - name: Upload Bicep JSON
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.component }}-json
+          name: main-json
           path: ./infra/
       - name: Logout of Azure CLI
         run: az logout
@@ -44,7 +41,7 @@ jobs:
       - name: Download Bicep JSON
         uses: actions/download-artifact@v2
         with:
-          name: backend-json
+          name: main-json
           path: ./infra/
       - name: Login to Azure CLI
         uses: azure/login@v1
@@ -129,9 +126,6 @@ jobs:
   deploy-frontend:
     needs: [build-bicep, deploy-backend, upload-to-blob, replace-placeholders]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        component: [frontend, backend]
     permissions:
       id-token: write
       contents: read
@@ -141,7 +135,7 @@ jobs:
       - name: Download Bicep JSON
         uses: actions/download-artifact@v2
         with:
-          name: frontend-json
+          name: main-json
           path: ./infra/
       - name: Login to Azure CLI
         uses: azure/login@v1
