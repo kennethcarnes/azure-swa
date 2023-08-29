@@ -1,6 +1,7 @@
 # Overview
 This project uses GitHub Actions, Bicep, and Azure CLI to deploy a static web app and dynamic assets stored in blob storage.
 
+[![Build and Deploy to Azure](https://github.com/kennethcarnes/azure-swa/actions/workflows/build-and-deploy-to-azure.yml/badge.svg)](https://github.com/kennethcarnes/azure-swa/actions/workflows/build-and-deploy-to-azure.yml)
 
 ## DevOps Practices
 ### Infrastructure as Code (IaC)
