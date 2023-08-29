@@ -12,7 +12,7 @@ print(f"Blob Container: {blob_container_name}")
 print("Current Directory:", os.getcwd())
 print("Directory Contents:", os.listdir())
 
-# Read HTML file into memory
+# Read HTML file into memory 
 with open("src/index.html", "r") as file:
     content = file.read()
     print(f"File content: {content[:100]}...")  # print only the first 100 characters
