@@ -81,4 +81,4 @@ az role assignment create --role "contributor" --subscription "<Subscription ID>
 Replace `<App ID>` and `<Subscription ID>` with your Azure Application ID and Subscription ID, respectively. Create a service principal and assign it `contributor` role within the scope of the specific resource group.
 ```bash
 az ad sp create-for-rbac --name "kc-app-github-azure-swa" --role "contributor" --scopes "/subscriptions/<Subscription ID>/resourceGroups/rg-name-prod-001" --sdk-auth
-``` 
+```  
