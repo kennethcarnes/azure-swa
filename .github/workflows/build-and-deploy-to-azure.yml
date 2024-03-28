@@ -171,3 +171,20 @@ jobs:
             swaSku=$SWA_SKU
       - name: Logout of Azure CLI
         run: az logout
+
+  deploy-static-content:
+    needs: replace-placeholders
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Deploy Static Content to Azure Static Web App
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BRAVE_PLANT_05E6AF71E }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you don't need to create it manually
+          action: "upload"
+          app_location: "/src" # This should point to where your static content lives, adjust if necessary
+          api_location: "" # Set this to the location of your API if you have one, or leave it empty
+          output_location: "" # Leave empty if your static site doesn't have a build step that outputs to a different folder
+      
